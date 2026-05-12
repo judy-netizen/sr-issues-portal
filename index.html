@@ -919,7 +919,8 @@ async function loadIssues(){
       summary: r.Summary,
       detail: r.Detail,
       notes: r.Notes || '',
-      statusLog: r.StatusLog || ''
+      statusLog: r.StatusLog || '',
+      resolvedDate: r.ResolvedDate || ''
     })).sort((a,b) => b.id - a.id);
   } catch(e){
     showToast('Failed to load data. Check your connection.');
@@ -1014,7 +1015,7 @@ function render(){
       <td class="col-cat"><span style="font-size:12px;color:#555">${i.category}</span></td>
       <td class="col-issue"><span class="cell-truncate" title="${i.summary}">${i.summary}</span></td>
       <td class="col-pri"><span class="badge ${priClass(i.priority)}">${i.priority}</span></td>
-      <td class="col-status"><span class="badge ${statusClass(i.status)}">${i.status}</span></td>
+      <td class="col-status"><span class="badge ${statusClass(i.status)}">${i.status}</span>${i.resolvedDate&&i.status==='Resolved'?`<div style="font-size:10px;color:#1e7a44;margin-top:3px;font-family:'DM Mono',monospace">${i.resolvedDate}</div>`:''}</td>
       <td class="col-act" onclick="event.stopPropagation()"><button class="btn-view" onclick="openView(${i.id})">View</button></td>
     </tr>
   `).join('');
@@ -1128,6 +1129,7 @@ function openView(id){
           <div class="detail-field"><div class="detail-field-label">Date Logged</div><div class="detail-field-val">${i.date}</div></div>
           <div class="detail-field"><div class="detail-field-label">Priority</div><div class="detail-field-val"><span class="badge ${priClass(i.priority)}">${i.priority}</span></div></div>
           <div class="detail-field"><div class="detail-field-label">Category</div><div class="detail-field-val">${i.category}</div></div>
+          ${i.resolvedDate ? `<div class="detail-field detail-full" style="border:1.5px solid #1e7a44;background:#f0faf5"><div class="detail-field-label" style="color:#1e7a44">✅ Resolved Date</div><div class="detail-field-val" style="color:#1e7a44;font-size:14px">${i.resolvedDate}</div></div>` : (i.status==='Resolved' ? `<div class="detail-field detail-full" style="border:1.5px solid #1e7a44;background:#f0faf5"><div class="detail-field-label" style="color:#1e7a44">✅ Resolved Date</div><div class="detail-field-val" style="color:#1e7a44">Just resolved</div></div>` : '')}
           <div class="detail-field detail-full"><div class="detail-field-label">Issue Summary</div><div class="detail-desc">${i.summary||'—'}</div></div>
           <div class="detail-field detail-full"><div class="detail-field-label">Details</div><div class="detail-desc">${i.detail||'No additional details provided.'}</div></div>
           <div class="detail-field detail-full"><div class="detail-field-label">SR Notes</div><div class="detail-desc">${i.notes||'—'}</div></div>
@@ -1183,8 +1185,9 @@ async function updateStatus(id,val){
   const ts = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
   const entry = `${ts} Changed from "${i.status}" → "${val}" by ${currentUser?currentUser.name:'Unknown'}`;
   const newLog = i.statusLog ? i.statusLog + ' | ' + entry : entry;
+  const resolvedDate = val==='Resolved' ? now.toISOString().slice(0,10) : (val!=='Resolved' ? '' : i.resolvedDate);
   try {
-    await apiPost({action:'update', ...i, status:val, statusLog:newLog});
+    await apiPost({action:'update', ...i, status:val, statusLog:newLog, resolvedDate});
     showToast('Status updated to ' + val + ' ✓');
     await loadIssues();
     closeModal();
@@ -1245,11 +1248,14 @@ async function saveEdit(id){
   const oldStatus = i.status;
   const newStatus = document.getElementById('e-status').value;
   let newLog = i.statusLog || '';
+  let resolvedDate = i.resolvedDate || '';
   if(oldStatus !== newStatus){
     const now = new Date();
     const ts = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
     const entry = `${ts} Changed from "${oldStatus}" → "${newStatus}" by ${currentUser?currentUser.name:'Unknown'}`;
     newLog = newLog ? newLog + ' | ' + entry : entry;
+    if(newStatus === 'Resolved') resolvedDate = now.toISOString().slice(0,10);
+    else resolvedDate = '';
   }
   i.date     = document.getElementById('e-date').value;
   i.priority = document.getElementById('e-pri').value;
@@ -1261,7 +1267,8 @@ async function saveEdit(id){
   i.summary  = document.getElementById('e-summary').value;
   i.detail   = document.getElementById('e-detail').value;
   i.notes    = document.getElementById('e-notes').value;
-  i.statusLog = newLog;
+  i.statusLog   = newLog;
+  i.resolvedDate = resolvedDate;
   try {
     await apiPost({action:'update', ...i});
     showToast('Issue updated successfully ✓');
