@@ -866,7 +866,10 @@ function priClass(p){ return p==='High'?'b-high':p==='Medium'?'b-medium':'b-low'
 function statusClass(s){ if(s==='Open') return 'b-open'; if(s==='In Progress') return 'b-inprog'; if(s==='Escalated') return 'b-escalated'; return 'b-resolved'; }
 
 function renderMetrics(){
-  const t=issues.length, op=issues.filter(i=>i.status==='Open').length, esc=issues.filter(i=>i.status==='Escalated').length, hi=issues.filter(i=>i.priority==='High').length, res=issues.filter(i=>i.status==='Resolved').length;
+  const filtered = (currentUser && currentUser.role==='sr')
+    ? issues.filter(i => i.sr === currentUser.name)
+    : issues;
+  const t=filtered.length, op=filtered.filter(i=>i.status==='Open').length, esc=filtered.filter(i=>i.status==='Escalated').length, hi=filtered.filter(i=>i.priority==='High').length, res=filtered.filter(i=>i.status==='Resolved').length;
   document.getElementById('metrics').innerHTML=`
     <div class="metric-card"><div class="metric-label">Total issues</div><div class="metric-val c-text">${t}</div><div class="metric-sub">All time</div></div>
     <div class="metric-card"><div class="metric-label">Open</div><div class="metric-val c-amber">${op}</div><div class="metric-sub">Needs attention</div></div>
@@ -874,9 +877,9 @@ function renderMetrics(){
     <div class="metric-card"><div class="metric-label">High priority</div><div class="metric-val c-red">${hi}</div><div class="metric-sub">Critical items</div></div>
     <div class="metric-card"><div class="metric-label">Resolved</div><div class="metric-val c-green">${res}</div><div class="metric-sub">Closed</div></div>
   `;
-  document.getElementById('tc-all').textContent=issues.length;
+  document.getElementById('tc-all').textContent=filtered.length;
   document.getElementById('tc-open').textContent=op;
-  document.getElementById('tc-inprog').textContent=issues.filter(i=>i.status==='In Progress').length;
+  document.getElementById('tc-inprog').textContent=filtered.filter(i=>i.status==='In Progress').length;
   document.getElementById('tc-esc').textContent=esc;
   document.getElementById('tc-res').textContent=res;
 }
