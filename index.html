@@ -1086,35 +1086,50 @@ function openView(id){
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="status-select-wrap">
-        <label>Status:</label>
-        <select onchange="updateStatus(${i.id},this.value)">
-          ${STATUSES.map(s=>`<option${s===i.status?' selected':''}>${s}</option>`).join('')}
-        </select>
-        <span class="badge ${priClass(i.priority)}" style="margin-left:6px">${i.priority}</span>
-      </div>
-      <div class="detail-title">${i.summary}</div>
-      <div class="detail-grid">
-        <div class="detail-field"><div class="detail-field-label">Sales Rep</div><div class="detail-field-val">${i.sr}${getTeamBadge(i.sr)}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Project Manager</div><div class="detail-field-val">${i.pm}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Customer Name</div><div class="detail-field-val">${i.customer||'—'}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Date Logged</div><div class="detail-field-val">${i.date}</div></div>
-        <div class="detail-field"><div class="detail-field-label">Category</div><div class="detail-field-val">${i.category}</div></div>
-        <div class="detail-field detail-full">
-          <div class="detail-field-label">Details</div>
-          <div class="detail-desc" id="view-detail-text">${i.detail||'No additional details provided.'}</div>
-          <textarea id="view-detail-edit" style="display:none;width:100%;margin-top:8px;min-height:80px;border:1.5px solid #1B3F7A;border-radius:8px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:#0d1e3d">${i.detail||''}</textarea>
+
+      <!-- VIEW MODE -->
+      <div id="view-mode">
+        <div class="status-select-wrap">
+          <label>Status:</label>
+          <select onchange="updateStatus(${i.id},this.value)">
+            ${STATUSES.map(s=>`<option${s===i.status?' selected':''}>${s}</option>`).join('')}
+          </select>
+          <span class="badge ${priClass(i.priority)}" style="margin-left:6px">${i.priority}</span>
         </div>
-        <div class="detail-field detail-full" style="margin-top:12px">
-          <div class="detail-field-label">SR Notes</div>
-          <div class="detail-desc" id="view-notes-text">${i.notes||'—'}</div>
-          <textarea id="view-notes-edit" style="display:none;width:100%;margin-top:8px;min-height:60px;border:1.5px solid #F7941D;border-radius:8px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:#0d1e3d" placeholder="Add notes from Sales Representative...">${i.notes||''}</textarea>
+        <div class="detail-title">${i.summary}</div>
+        <div class="detail-grid">
+          <div class="detail-field"><div class="detail-field-label">Sales Rep</div><div class="detail-field-val">${i.sr}${getTeamBadge(i.sr)}</div></div>
+          <div class="detail-field"><div class="detail-field-label">Project Manager</div><div class="detail-field-val">${i.pm}</div></div>
+          <div class="detail-field"><div class="detail-field-label">Customer Name</div><div class="detail-field-val">${i.customer||'—'}</div></div>
+          <div class="detail-field"><div class="detail-field-label">Date Logged</div><div class="detail-field-val">${i.date}</div></div>
+          <div class="detail-field"><div class="detail-field-label">Priority</div><div class="detail-field-val"><span class="badge ${priClass(i.priority)}">${i.priority}</span></div></div>
+          <div class="detail-field"><div class="detail-field-label">Category</div><div class="detail-field-val">${i.category}</div></div>
+          <div class="detail-field detail-full"><div class="detail-field-label">Issue Summary</div><div class="detail-desc">${i.summary||'—'}</div></div>
+          <div class="detail-field detail-full"><div class="detail-field-label">Details</div><div class="detail-desc">${i.detail||'No additional details provided.'}</div></div>
+          <div class="detail-field detail-full"><div class="detail-field-label">SR Notes</div><div class="detail-desc">${i.notes||'—'}</div></div>
         </div>
       </div>
+
+      <!-- EDIT MODE -->
+      <div id="edit-mode" style="display:none">
+        <div class="form-grid">
+          <div class="form-group"><label>Date</label><input type="date" id="e-date" value="${i.date||''}"></div>
+          <div class="form-group"><label>Priority</label><select id="e-pri">${PRIS.map(p=>`<option${p===i.priority?' selected':''}>${p}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Sales Representative</label><select id="e-sr">${srSelectHtml(i.sr)}</select></div>
+          <div class="form-group"><label>Project Manager</label><select id="e-pm"><option value="">— Select PM —</option>${PMs.map(p=>`<option${p===i.pm?' selected':''}>${p}</option>`).join('')}</select></div>
+          <div class="form-group form-full"><label>Customer Name</label><input type="text" id="e-customer" value="${i.customer||''}"></div>
+          <div class="form-group"><label>Category</label><select id="e-cat">${CATS.map(c=>`<option${c===i.category?' selected':''}>${c}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Status</label><select id="e-status">${STATUSES.map(s=>`<option${s===i.status?' selected':''}>${s}</option>`).join('')}</select></div>
+          <div class="form-group form-full"><label>Issue Summary</label><input type="text" id="e-summary" value="${(i.summary||'').replace(/"/g,'&quot;')}"></div>
+          <div class="form-group form-full"><label>Details</label><textarea id="e-detail" style="min-height:80px">${i.detail||''}</textarea></div>
+          <div class="form-group form-full"><label>SR Notes</label><textarea id="e-notes" style="min-height:60px" placeholder="Add notes from Sales Representative...">${i.notes||''}</textarea></div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn-danger" id="view-delete-btn" onclick="deleteIssue(${i.id})">Delete</button>
-      <button class="btn-ghost" id="view-edit-btn" onclick="toggleEdit(${i.id})">Edit</button>
+      <button class="btn-ghost" id="view-edit-btn" onclick="toggleEdit(${i.id})">✏️ Edit</button>
       <button class="btn-add" id="view-save-btn" style="display:none" onclick="saveEdit(${i.id})">Save Changes</button>
       <button class="btn-ghost" onclick="closeModal()">Close</button>
     </div>
@@ -1149,39 +1164,41 @@ async function deleteIssue(id){
 }
 
 function toggleEdit(id){
-  const detailText = document.getElementById('view-detail-text');
-  const detailEdit = document.getElementById('view-detail-edit');
-  const notesText  = document.getElementById('view-notes-text');
-  const notesEdit  = document.getElementById('view-notes-edit');
-  const editBtn    = document.getElementById('view-edit-btn');
-  const saveBtn    = document.getElementById('view-save-btn');
-  const deleteBtn  = document.getElementById('view-delete-btn');
-  const isEditing  = detailEdit.style.display !== 'none';
+  const viewMode = document.getElementById('view-mode');
+  const editMode = document.getElementById('edit-mode');
+  const editBtn  = document.getElementById('view-edit-btn');
+  const saveBtn  = document.getElementById('view-save-btn');
+  const deleteBtn= document.getElementById('view-delete-btn');
+  const isEditing = editMode.style.display !== 'none';
   if(isEditing){
-    // Cancel edit
-    detailText.style.display='block'; detailEdit.style.display='none';
-    notesText.style.display='block';  notesEdit.style.display='none';
-    editBtn.textContent='Edit'; saveBtn.style.display='none';
+    viewMode.style.display='block'; editMode.style.display='none';
+    editBtn.textContent='✏️ Edit'; saveBtn.style.display='none';
     deleteBtn.style.display='block';
   } else {
-    // Enter edit mode
-    detailText.style.display='none'; detailEdit.style.display='block';
-    notesText.style.display='none';  notesEdit.style.display='block';
+    viewMode.style.display='none'; editMode.style.display='block';
     editBtn.textContent='Cancel'; saveBtn.style.display='inline-flex';
     deleteBtn.style.display='none';
   }
 }
 
 async function saveEdit(id){
-  const i = issues.find(x=>x.id===id);
+  const i=issues.find(x=>x.id===id);
   if(!i) return;
   const saveBtn = document.getElementById('view-save-btn');
   saveBtn.textContent='Saving…'; saveBtn.disabled=true;
-  i.detail = document.getElementById('view-detail-edit').value;
-  i.notes  = document.getElementById('view-notes-edit').value;
+  i.date     = document.getElementById('e-date').value;
+  i.priority = document.getElementById('e-pri').value;
+  i.sr       = document.getElementById('e-sr').value;
+  i.pm       = document.getElementById('e-pm').value;
+  i.customer = document.getElementById('e-customer').value;
+  i.category = document.getElementById('e-cat').value;
+  i.status   = document.getElementById('e-status').value;
+  i.summary  = document.getElementById('e-summary').value;
+  i.detail   = document.getElementById('e-detail').value;
+  i.notes    = document.getElementById('e-notes').value;
   try {
     await apiPost({action:'update', ...i});
-    showToast('Changes saved ✓');
+    showToast('Issue updated successfully ✓');
     closeModal();
     await loadIssues();
   } catch(e){
