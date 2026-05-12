@@ -1409,18 +1409,22 @@ function renderMessages(){
   const container = document.getElementById('msg-content');
   if(!container) return;
 
-  // Gather all issues with comments
+  // Gather all issues with comments, filtered by role
   let issuesWithComments = issues.filter(i => i.comments && i.comments.trim());
 
-  // Filter for 'mine' tab
-  if(msgTab === 'mine'){
-    issuesWithComments = issuesWithComments.filter(i => {
-      const entries = i.comments.split('||').filter(e=>e.trim());
-      if(currentUser.role === 'pm') return i.pm === currentUser.name;
-      if(currentUser.role === 'sr') return i.sr === currentUser.name;
-      return true; // admin sees all
-    });
+  // Always restrict SR and PM to their own issues
+  if(currentUser.role === 'sr'){
+    issuesWithComments = issuesWithComments.filter(i => i.sr === currentUser.name);
+  } else if(currentUser.role === 'pm'){
+    if(msgTab === 'mine'){
+      issuesWithComments = issuesWithComments.filter(i => i.pm === currentUser.name);
+    }
+    // 'all' tab: PM sees all issues with comments
   }
+  // admin sees all on both tabs
+
+  // 'mine' tab for SR: only show issues that have comments involving them
+  // (already filtered above by i.sr === currentUser.name)
 
   if(!issuesWithComments.length){
     container.innerHTML = `<div class="no-msg">
@@ -1471,16 +1475,16 @@ function updateMsgBadge(){
   if(!currentUser) return;
   const count = issues.filter(i => {
     if(!i.comments) return false;
+    // Only count issues relevant to this user
+    if(currentUser.role==='sr' && i.sr !== currentUser.name) return false;
+    if(currentUser.role==='pm' && i.pm !== currentUser.name) return false;
     const entries = i.comments.split('||').filter(e=>e.trim());
     if(!entries.length) return false;
     const lastEntry = entries[entries.length-1];
     const parts = lastEntry.trim().split(' | ');
     const lastWho = parts[1]||'';
-    // Unread = last comment NOT from me, and issue is relevant to me
-    if(lastWho === currentUser.name) return false;
-    if(currentUser.role==='pm') return i.pm === currentUser.name;
-    if(currentUser.role==='sr') return i.sr === currentUser.name;
-    return true;
+    // Unread = last comment NOT from me
+    return lastWho !== currentUser.name;
   }).length;
   const badge = document.getElementById('msg-badge');
   if(badge){
