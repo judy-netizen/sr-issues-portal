@@ -722,6 +722,11 @@
           </select>
         </div>
 
+        <div id="record-count-bar" style="display:none;align-items:center;justify-content:space-between;padding:8px 14px;background:#fff8f0;border:1px solid #ffd09a;border-radius:var(--radius);margin-bottom:12px;font-size:13px;">
+          <span id="record-count-text" style="color:#7a3800;font-weight:600;"></span>
+          <button onclick="clearFilters()" style="background:none;border:none;color:#F7941D;font-size:12px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;">✕ Clear filters</button>
+        </div>
+
         <div class="table-card">
           <table>
             <thead>
@@ -913,7 +918,8 @@ async function loadIssues(){
       status: r.Status,
       summary: r.Summary,
       detail: r.Detail,
-      notes: r.Notes || ''
+      notes: r.Notes || '',
+      statusLog: r.StatusLog || ''
     })).sort((a,b) => b.id - a.id);
   } catch(e){
     showToast('Failed to load data. Check your connection.');
@@ -979,6 +985,24 @@ function render(){
     return true;
   });
   const tbody=document.getElementById('tbody');
+  // Update record count bar
+  const bar = document.getElementById('record-count-bar');
+  const countText = document.getElementById('record-count-text');
+  const hasFilter = q || pm || pri || cat || org || sr || activeTab!=='all';
+  if(hasFilter && bar){
+    let label = '';
+    if(sr) label = `${sr}`;
+    else if(pm) label = `${pm}`;
+    else if(org) label = org.charAt(0).toUpperCase()+org.slice(1)+' Team';
+    else if(pri) label = pri+' Priority';
+    else if(cat) label = cat;
+    else if(activeTab!=='all') label = activeTab.charAt(0).toUpperCase()+activeTab.slice(1);
+    else label = 'Current filter';
+    countText.textContent = `${label}: ${list.length} record${list.length!==1?'s':''}`;
+    bar.style.display='flex';
+  } else if(bar){
+    bar.style.display='none';
+  }
   if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div style="font-size:32px;color:var(--text3)">◎</div><p>No issues found</p></div></td></tr>`;return;}
   tbody.innerHTML=list.map(i=>`
     <tr onclick="openView(${i.id})">
@@ -1107,22 +1131,36 @@ function openView(id){
           <div class="detail-field detail-full"><div class="detail-field-label">Issue Summary</div><div class="detail-desc">${i.summary||'—'}</div></div>
           <div class="detail-field detail-full"><div class="detail-field-label">Details</div><div class="detail-desc">${i.detail||'No additional details provided.'}</div></div>
           <div class="detail-field detail-full"><div class="detail-field-label">SR Notes</div><div class="detail-desc">${i.notes||'—'}</div></div>
+          ${i.statusLog ? `
+          <div class="detail-field detail-full">
+            <div class="detail-field-label">Status History</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+              ${i.statusLog.split('|').map(entry=>{
+                const [ts, ...rest] = entry.trim().split(' ');
+                const msg = rest.join(' ');
+                return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+                  <span style="background:#eef1f7;border-radius:6px;padding:2px 8px;color:#1B3F7A;font-family:'DM Mono',monospace;white-space:nowrap">${ts||''}</span>
+                  <span style="color:#2a3f6b">${msg||''}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>` : ''}
         </div>
       </div>
 
       <!-- EDIT MODE -->
       <div id="edit-mode" style="display:none">
         <div class="form-grid">
-          <div class="form-group"><label>Date</label><input type="date" id="e-date" value="${i.date||''}"></div>
-          <div class="form-group"><label>Priority</label><select id="e-pri">${PRIS.map(p=>`<option${p===i.priority?' selected':''}>${p}</option>`).join('')}</select></div>
-          <div class="form-group"><label>Sales Representative</label><select id="e-sr">${srSelectHtml(i.sr)}</select></div>
-          <div class="form-group"><label>Project Manager</label><select id="e-pm"><option value="">— Select PM —</option>${PMs.map(p=>`<option${p===i.pm?' selected':''}>${p}</option>`).join('')}</select></div>
-          <div class="form-group form-full"><label>Customer Name</label><input type="text" id="e-customer" value="${i.customer||''}"></div>
-          <div class="form-group"><label>Category</label><select id="e-cat">${CATS.map(c=>`<option${c===i.category?' selected':''}>${c}</option>`).join('')}</select></div>
-          <div class="form-group"><label>Status</label><select id="e-status">${STATUSES.map(s=>`<option${s===i.status?' selected':''}>${s}</option>`).join('')}</select></div>
-          <div class="form-group form-full"><label>Issue Summary</label><input type="text" id="e-summary" value="${(i.summary||'').replace(/"/g,'&quot;')}"></div>
-          <div class="form-group form-full"><label>Details</label><textarea id="e-detail" style="min-height:80px">${i.detail||''}</textarea></div>
-          <div class="form-group form-full"><label>SR Notes</label><textarea id="e-notes" style="min-height:60px" placeholder="Add notes from Sales Representative...">${i.notes||''}</textarea></div>
+          <div class="form-group"><label>Date</label><input type="date" id="e-date"></div>
+          <div class="form-group"><label>Priority</label><select id="e-pri">${PRIS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Sales Representative</label><select id="e-sr">${srSelectHtml()}</select></div>
+          <div class="form-group"><label>Project Manager</label><select id="e-pm"><option value="">— Select PM —</option>${PMs.map(p=>`<option>${p}</option>`).join('')}</select></div>
+          <div class="form-group form-full"><label>Customer Name</label><input type="text" id="e-customer" placeholder="Full name of the customer"></div>
+          <div class="form-group"><label>Category</label><select id="e-cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Status</label><select id="e-status">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+          <div class="form-group form-full"><label>Issue Summary</label><input type="text" id="e-summary" placeholder="Brief title describing the concern"></div>
+          <div class="form-group form-full"><label>Details</label><textarea id="e-detail" style="min-height:80px" placeholder="Describe the issue..."></textarea></div>
+          <div class="form-group form-full"><label>SR Notes</label><textarea id="e-notes" style="min-height:60px" placeholder="Add notes from Sales Representative..."></textarea></div>
         </div>
       </div>
 
@@ -1141,8 +1179,12 @@ async function updateStatus(id,val){
   showToast('Updating status…');
   const i=issues.find(x=>x.id===id);
   if(!i) return;
+  const now = new Date();
+  const ts = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
+  const entry = `${ts} Changed from "${i.status}" → "${val}" by ${currentUser?currentUser.name:'Unknown'}`;
+  const newLog = i.statusLog ? i.statusLog + ' | ' + entry : entry;
   try {
-    await apiPost({action:'update', ...i, status:val});
+    await apiPost({action:'update', ...i, status:val, statusLog:newLog});
     showToast('Status updated to ' + val + ' ✓');
     await loadIssues();
     closeModal();
@@ -1175,6 +1217,20 @@ function toggleEdit(id){
     editBtn.textContent='✏️ Edit'; saveBtn.style.display='none';
     deleteBtn.style.display='block';
   } else {
+    // Populate edit fields safely with current issue data
+    const i = issues.find(x=>x.id===id);
+    if(i){
+      document.getElementById('e-date').value      = i.date    || '';
+      document.getElementById('e-pri').value        = i.priority|| '';
+      document.getElementById('e-sr').value         = i.sr      || '';
+      document.getElementById('e-pm').value         = i.pm      || '';
+      document.getElementById('e-customer').value   = i.customer|| '';
+      document.getElementById('e-cat').value        = i.category|| '';
+      document.getElementById('e-status').value     = i.status  || '';
+      document.getElementById('e-summary').value    = i.summary || '';
+      document.getElementById('e-detail').value     = i.detail  || '';
+      document.getElementById('e-notes').value      = i.notes   || '';
+    }
     viewMode.style.display='none'; editMode.style.display='block';
     editBtn.textContent='Cancel'; saveBtn.style.display='inline-flex';
     deleteBtn.style.display='none';
@@ -1186,16 +1242,26 @@ async function saveEdit(id){
   if(!i) return;
   const saveBtn = document.getElementById('view-save-btn');
   saveBtn.textContent='Saving…'; saveBtn.disabled=true;
+  const oldStatus = i.status;
+  const newStatus = document.getElementById('e-status').value;
+  let newLog = i.statusLog || '';
+  if(oldStatus !== newStatus){
+    const now = new Date();
+    const ts = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
+    const entry = `${ts} Changed from "${oldStatus}" → "${newStatus}" by ${currentUser?currentUser.name:'Unknown'}`;
+    newLog = newLog ? newLog + ' | ' + entry : entry;
+  }
   i.date     = document.getElementById('e-date').value;
   i.priority = document.getElementById('e-pri').value;
   i.sr       = document.getElementById('e-sr').value;
   i.pm       = document.getElementById('e-pm').value;
   i.customer = document.getElementById('e-customer').value;
   i.category = document.getElementById('e-cat').value;
-  i.status   = document.getElementById('e-status').value;
+  i.status   = newStatus;
   i.summary  = document.getElementById('e-summary').value;
   i.detail   = document.getElementById('e-detail').value;
   i.notes    = document.getElementById('e-notes').value;
+  i.statusLog = newLog;
   try {
     await apiPost({action:'update', ...i});
     showToast('Issue updated successfully ✓');
@@ -1207,6 +1273,19 @@ async function saveEdit(id){
   }
 }
 
+
+function clearFilters(){
+  document.getElementById('search').value='';
+  document.getElementById('fPM').value='';
+  document.getElementById('fOrg').value='';
+  document.getElementById('fSR').value='';
+  document.getElementById('fPri').value='';
+  document.getElementById('fCat').value='';
+  activeTab='all';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  render();
+}
 
 function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
 
