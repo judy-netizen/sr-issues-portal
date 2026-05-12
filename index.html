@@ -471,6 +471,8 @@
     animation: fadeIn 0.2s ease;
   }
   .b-vip { background: rgba(247,148,29,0.15); color: #c96e00; border: 1px solid rgba(247,148,29,0.35); font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; vertical-align: middle; margin-left: 5px; }
+  .b-fleet { background: rgba(30,122,68,0.13); color: #1e7a44; border: 1px solid rgba(30,122,68,0.3); font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; vertical-align: middle; margin-left: 5px; }
+  .b-admin { background: rgba(247,148,29,0.2); color: #7a3800; border: 1px solid #F7941D; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 0.05em; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   /* LOGIN SCREEN */
@@ -515,6 +517,9 @@
       <label>Your Name</label>
       <select id="login-name">
         <option value="">— Select your name —</option>
+        <optgroup label="Admin">
+          <option>Judy</option>
+        </optgroup>
         <optgroup label="Project Managers">
           <option>Allaiza Velasquez</option>
           <option>Genneva Arguelles</option>
@@ -531,6 +536,7 @@
           <option>Habib Maktabi</option>
           <option>Hadi Haj Abdullah</option>
           <option>Kai Nori</option>
+          <option>Karim Almasri</option>
           <option>Khaled Zarzour</option>
           <option>Luay Daboul</option>
           <option>Marina Morcos</option>
@@ -555,6 +561,15 @@
           <option>Matthew Romano</option>
           <option>MOw Salah</option>
           <option>Muhanad Alkubaishi</option>
+        </optgroup>
+        <optgroup label="Fleet Team">
+          <option>Daniel Murillo - Fleet</option>
+          <option>Daniel Ortiz - Fleet</option>
+          <option>Diego Garza - Fleet</option>
+          <option>Miguel Delgado - Fleet</option>
+          <option>Rene Orozco - Fleet</option>
+          <option>Rene Rodriguez - Fleet</option>
+          <option>Rodolfo - Fleet</option>
         </optgroup>
       </select>
     </div>
@@ -602,6 +617,10 @@
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         VIP team
       </button>
+      <button class="nav-item" onclick="quickFilter('fleet')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Fleet team
+      </button>
     </nav>
     <div class="sidebar-footer">Logged in as <span>Admin</span></div>
   </aside>
@@ -645,30 +664,24 @@
             <option>Francheska Alvarez</option>
             <option>Angelica Capili</option>
             <option>May Contestable</option>
+            <option>Mary Ann Sante</option>
           </select>
           <select id="fOrg" onchange="render()">
             <option value="">All teams</option>
             <option value="regular">Regular team</option>
             <option value="vip">VIP team</option>
+            <option value="fleet">Fleet team</option>
           </select>
           <select id="fSR" onchange="render()">
             <option value="">All reps</option>
             <optgroup label="Regular Team">
-              <option>Abdulhalim Dayoub</option><option>Adam Kheder</option><option>Alaa Mahdi</option><option>Ashraf Dardar</option><option>Habib Maktabi</option><option>Hadi Haj Abdullah</option><option>Kai Nori</option><option>Khaled Zarzour</option><option>Luay Daboul</option><option>Marina Morcos</option><option>Mo Jaliawala</option><option>Mutawakel Nofal</option><option>Rami Alkhawandi</option><option>Romel George</option><option>Sam Aktham</option><option>Sami Alkabbani</option><option>Zack</option>
+              <option>Abdulhalim Dayoub</option><option>Adam Kheder</option><option>Alaa Mahdi</option><option>Ashraf Dardar</option><option>Habib Maktabi</option><option>Hadi Haj Abdullah</option><option>Kai Nori</option><option>Karim Almasri</option><option>Khaled Zarzour</option><option>Luay Daboul</option><option>Marina Morcos</option><option>Mo Jaliawala</option><option>Mutawakel Nofal</option><option>Rami Alkhawandi</option><option>Romel George</option><option>Sam Aktham</option><option>Sami Alkabbani</option><option>Zack</option>
             </optgroup>
             <optgroup label="VIP Team">
-              <option>Ahmed Alsayyad</option>
-              <option>Mo Alkubaisi</option>
-              <option>Marwan Smadi</option>
-              <option>Marwan Noweder</option>
-              <option>Ben Qahwaji</option>
-              <option>Abdal Barakat</option>
-              <option>Ahmad Shaban</option>
-              <option>Deanna Hernandez</option>
-              <option>Hina Inayat</option>
-              <option>Matthew Romano</option>
-              <option>MOw Salah</option>
-              <option>Muhanad Alkubaishi</option>
+              <option>Ahmed Alsayyad</option><option>Mo Alkubaisi</option><option>Marwan Smadi</option><option>Marwan Noweder</option><option>Ben Qahwaji</option><option>Abdal Barakat</option><option>Ahmad Shaban</option><option>Deanna Hernandez</option><option>Hina Inayat</option><option>Matthew Romano</option><option>MOw Salah</option><option>Muhanad Alkubaishi</option>
+            </optgroup>
+            <optgroup label="Fleet Team">
+              <option>Daniel Murillo - Fleet</option><option>Daniel Ortiz - Fleet</option><option>Diego Garza - Fleet</option><option>Miguel Delgado - Fleet</option><option>Rene Orozco - Fleet</option><option>Rene Rodriguez - Fleet</option><option>Rodolfo - Fleet</option>
             </optgroup>
           </select>
           <select id="fPri" onchange="render()">
@@ -737,6 +750,9 @@ const SCRIPT_URL = 'https://script.google.com/a/macros/sunrisesolar-il.com/s/AKf
 
 /* ── PIN credentials ── */
 const CREDENTIALS = {
+  // Admin (full access to everything)
+  'Judy':               {pin:'9271',role:'admin'},
+  // Project Managers (see only issues they logged)
   'Allaiza Velasquez':  {pin:'2824',role:'pm'},
   'Genneva Arguelles':  {pin:'1409',role:'pm'},
   'Francheska Alvarez': {pin:'5506',role:'pm'},
@@ -772,6 +788,14 @@ const CREDENTIALS = {
   'Matthew Romano':     {pin:'2519',role:'sr'},
   'MOw Salah':          {pin:'7224',role:'sr'},
   'Muhanad Alkubaishi': {pin:'2584',role:'sr'},
+  'Karim Almasri':          {pin:'3821',role:'sr'},
+  'Daniel Murillo - Fleet': {pin:'4731',role:'sr'},
+  'Daniel Ortiz - Fleet':   {pin:'6284',role:'sr'},
+  'Diego Garza - Fleet':    {pin:'5193',role:'sr'},
+  'Miguel Delgado - Fleet': {pin:'8462',role:'sr'},
+  'Rene Orozco - Fleet':    {pin:'2917',role:'sr'},
+  'Rene Rodriguez - Fleet': {pin:'7345',role:'sr'},
+  'Rodolfo - Fleet':        {pin:'5638',role:'sr'},
 };
 
 let currentUser = null;
@@ -791,10 +815,17 @@ function doLogin(){
   }
   currentUser = { name, role: cred.role };
   document.getElementById('login-screen').style.display='none';
-  document.querySelector('.sidebar-footer').innerHTML = `Logged in as <span>${name}</span>`;
+  // Update sidebar footer
+  const roleLabel = cred.role==='admin' ? '👑 Admin' : cred.role==='pm' ? 'Project Manager' : 'Sales Rep';
+  document.querySelector('.sidebar-footer').innerHTML = `<span>${name}</span><br><span style="font-size:10px;opacity:0.6">${roleLabel}</span>`;
+  // Role-based UI adjustments
   if(currentUser.role === 'sr'){
     document.querySelector('.btn-add').style.display='none';
     document.querySelector('.topbar-left p').textContent = 'Showing issues assigned to you';
+  } else if(currentUser.role === 'pm'){
+    document.querySelector('.topbar-left p').textContent = 'Showing your logged issues';
+  } else if(currentUser.role === 'admin'){
+    document.querySelector('.topbar-left p').textContent = 'Admin — all issues visible';
   }
   loadIssues();
 }
@@ -803,9 +834,16 @@ const PMs = ['Allaiza Velasquez','Genneva Arguelles','Francheska Alvarez','Angel
 const CATS = ['HO Confirmation','Documentation','Design Change','Project Delay','Utility Bill'];
 const STATUSES = ['Open','In Progress','Escalated','Resolved'];
 const PRIS = ['High','Medium','Low'];
-const SR_REGULAR = ['Abdulhalim Dayoub','Adam Kheder','Alaa Mahdi','Ashraf Dardar','Habib Maktabi','Hadi Haj Abdullah','Kai Nori','Khaled Zarzour','Luay Daboul','Marina Morcos','Mo Jaliawala','Mutawakel Nofal','Rami Alkhawandi','Romel George','Sam Aktham','Sami Alkabbani','Zack'];
+const SR_REGULAR = ['Abdulhalim Dayoub','Adam Kheder','Alaa Mahdi','Ashraf Dardar','Habib Maktabi','Hadi Haj Abdullah','Kai Nori','Karim Almasri','Khaled Zarzour','Luay Daboul','Marina Morcos','Mo Jaliawala','Mutawakel Nofal','Rami Alkhawandi','Romel George','Sam Aktham','Sami Alkabbani','Zack'];
 const SR_VIP = ['Ahmed Alsayyad','Mo Alkubaisi','Marwan Smadi','Marwan Noweder','Ben Qahwaji','Abdal Barakat','Ahmad Shaban','Deanna Hernandez','Hina Inayat','Matthew Romano','MOw Salah','Muhanad Alkubaishi'];
+const SR_FLEET = ['Daniel Murillo - Fleet','Daniel Ortiz - Fleet','Diego Garza - Fleet','Miguel Delgado - Fleet','Rene Orozco - Fleet','Rene Rodriguez - Fleet','Rodolfo - Fleet'];
 function isVIP(name){ return SR_VIP.includes(name); }
+function isFleet(name){ return SR_FLEET.includes(name); }
+function getTeamBadge(name){
+  if(isVIP(name)) return '<span class="b-vip">VIP</span>';
+  if(isFleet(name)) return '<span class="b-fleet">Fleet</span>';
+  return '';
+}
 
 let issues = [];
 let activeTab = 'all';
@@ -852,7 +890,8 @@ async function loadIssues(){
       priority: r.Priority,
       status: r.Status,
       summary: r.Summary,
-      detail: r.Detail
+      detail: r.Detail,
+      notes: r.Notes || ''
     })).sort((a,b) => b.id - a.id);
   } catch(e){
     showToast('Failed to load data. Check your connection.');
@@ -866,9 +905,12 @@ function priClass(p){ return p==='High'?'b-high':p==='Medium'?'b-medium':'b-low'
 function statusClass(s){ if(s==='Open') return 'b-open'; if(s==='In Progress') return 'b-inprog'; if(s==='Escalated') return 'b-escalated'; return 'b-resolved'; }
 
 function renderMetrics(){
-  const filtered = (currentUser && currentUser.role==='sr')
-    ? issues.filter(i => i.sr === currentUser.name)
-    : issues;
+  let filtered = issues;
+  if(currentUser){
+    if(currentUser.role==='pm')    filtered = issues.filter(i => i.pm === currentUser.name);
+    else if(currentUser.role==='sr') filtered = issues.filter(i => i.sr === currentUser.name);
+    // admin sees all
+  }
   const t=filtered.length, op=filtered.filter(i=>i.status==='Open').length, esc=filtered.filter(i=>i.status==='Escalated').length, hi=filtered.filter(i=>i.priority==='High').length, res=filtered.filter(i=>i.status==='Resolved').length;
   document.getElementById('metrics').innerHTML=`
     <div class="metric-card"><div class="metric-label">Total issues</div><div class="metric-val c-text">${t}</div><div class="metric-sub">All time</div></div>
@@ -894,8 +936,12 @@ function render(){
   const org=document.getElementById('fOrg').value;
   const sr=document.getElementById('fSR').value;
   let list=issues.filter(i=>{
-    // SR role: only show their own issues
-    if(currentUser && currentUser.role==='sr' && i.sr!==currentUser.name) return false;
+    // Admin sees everything
+    if(currentUser && currentUser.role==='admin') { /* no filter */ }
+    // PM: only see issues they logged
+    else if(currentUser && currentUser.role==='pm' && i.pm!==currentUser.name) return false;
+    // SR: only see issues where they are the rep
+    else if(currentUser && currentUser.role==='sr' && i.sr!==currentUser.name) return false;
     if(activeTab==='open'&&i.status!=='Open') return false;
     if(activeTab==='in-progress'&&i.status!=='In Progress') return false;
     if(activeTab==='escalated'&&i.status!=='Escalated') return false;
@@ -905,7 +951,8 @@ function render(){
     if(pri&&i.priority!==pri) return false;
     if(cat&&i.category!==cat) return false;
     if(org==='vip'&&!isVIP(i.sr)) return false;
-    if(org==='regular'&&isVIP(i.sr)) return false;
+    if(org==='regular'&&(isVIP(i.sr)||isFleet(i.sr))) return false;
+    if(org==='fleet'&&!isFleet(i.sr)) return false;
     if(sr&&i.sr!==sr) return false;
     return true;
   });
@@ -916,7 +963,7 @@ function render(){
       <td class="col-id cell-mono">#${String(i.id).padStart(3,'0')}</td>
       <td class="col-date cell-mono">${(i.date||'').slice(0,10).slice(5).replace('-','/')}</td>
       <td class="col-customer"><span class="cell-truncate" title="${i.customer||''}">${i.customer||'—'}</span></td>
-      <td class="col-sr"><span title="${i.sr}">${i.sr}${isVIP(i.sr)?'<span class="b-vip">VIP</span>':''}</span></td>
+      <td class="col-sr"><span title="${i.sr}">${i.sr}${getTeamBadge(i.sr)}</span></td>
       <td class="col-pm"><span style="color:#2a3f6b;font-weight:500" title="${i.pm}">${i.pm}</span></td>
       <td class="col-cat"><span style="font-size:12px;color:#555">${i.category}</span></td>
       <td class="col-issue"><span class="cell-truncate" title="${i.summary}">${i.summary}</span></td>
@@ -944,13 +991,15 @@ function quickFilter(type){
   else if(type==='escalated'){document.querySelectorAll('.tab-btn')[3].click();}
   else if(type==='open'){document.querySelectorAll('.tab-btn')[1].click();}
   else if(type==='vip'){document.getElementById('fOrg').value='vip';}
+  else if(type==='fleet'){document.getElementById('fOrg').value='fleet';}
   render();
 }
 
 function srSelectHtml(selected=''){
   const reg=SR_REGULAR.map(s=>`<option${s===selected?' selected':''}>${s}</option>`).join('');
   const vip=SR_VIP.map(s=>`<option${s===selected?' selected':''}>${s}</option>`).join('');
-  return `<option value="">— Select Sales Rep —</option><optgroup label="Regular Team">${reg}</optgroup><optgroup label="VIP Team">${vip}</optgroup>`;
+  const fleet=SR_FLEET.map(s=>`<option${s===selected?' selected':''}>${s}</option>`).join('');
+  return `<option value="">— Select Sales Rep —</option><optgroup label="Regular Team">${reg}</optgroup><optgroup label="VIP Team">${vip}</optgroup><optgroup label="Fleet Team">${fleet}</optgroup>`;
 }
 
 function openAdd(){
@@ -1024,16 +1073,27 @@ function openView(id){
       </div>
       <div class="detail-title">${i.summary}</div>
       <div class="detail-grid">
-        <div class="detail-field"><div class="detail-field-label">Sales Rep</div><div class="detail-field-val">${i.sr}${isVIP(i.sr)?'<span class="b-vip">VIP</span>':''}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Sales Rep</div><div class="detail-field-val">${i.sr}${getTeamBadge(i.sr)}</div></div>
         <div class="detail-field"><div class="detail-field-label">Project Manager</div><div class="detail-field-val">${i.pm}</div></div>
         <div class="detail-field"><div class="detail-field-label">Customer Name</div><div class="detail-field-val">${i.customer||'—'}</div></div>
         <div class="detail-field"><div class="detail-field-label">Date Logged</div><div class="detail-field-val">${i.date}</div></div>
         <div class="detail-field"><div class="detail-field-label">Category</div><div class="detail-field-val">${i.category}</div></div>
-        <div class="detail-field detail-full"><div class="detail-field-label">Details</div><div class="detail-desc">${i.detail||'No additional details provided.'}</div></div>
+        <div class="detail-field detail-full">
+          <div class="detail-field-label">Details</div>
+          <div class="detail-desc" id="view-detail-text">${i.detail||'No additional details provided.'}</div>
+          <textarea id="view-detail-edit" style="display:none;width:100%;margin-top:8px;min-height:80px;border:1.5px solid #1B3F7A;border-radius:8px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:#0d1e3d">${i.detail||''}</textarea>
+        </div>
+        <div class="detail-field detail-full" style="margin-top:12px">
+          <div class="detail-field-label">SR Notes</div>
+          <div class="detail-desc" id="view-notes-text">${i.notes||'—'}</div>
+          <textarea id="view-notes-edit" style="display:none;width:100%;margin-top:8px;min-height:60px;border:1.5px solid #F7941D;border-radius:8px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:#0d1e3d" placeholder="Add notes from Sales Representative...">${i.notes||''}</textarea>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-danger" onclick="deleteIssue(${i.id})">Delete</button>
+      <button class="btn-danger" id="view-delete-btn" onclick="deleteIssue(${i.id})">Delete</button>
+      <button class="btn-ghost" id="view-edit-btn" onclick="toggleEdit(${i.id})">Edit</button>
+      <button class="btn-add" id="view-save-btn" style="display:none" onclick="saveEdit(${i.id})">Save Changes</button>
       <button class="btn-ghost" onclick="closeModal()">Close</button>
     </div>
   `;
@@ -1066,7 +1126,49 @@ async function deleteIssue(id){
   }
 }
 
-function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+function toggleEdit(id){
+  const detailText = document.getElementById('view-detail-text');
+  const detailEdit = document.getElementById('view-detail-edit');
+  const notesText  = document.getElementById('view-notes-text');
+  const notesEdit  = document.getElementById('view-notes-edit');
+  const editBtn    = document.getElementById('view-edit-btn');
+  const saveBtn    = document.getElementById('view-save-btn');
+  const deleteBtn  = document.getElementById('view-delete-btn');
+  const isEditing  = detailEdit.style.display !== 'none';
+  if(isEditing){
+    // Cancel edit
+    detailText.style.display='block'; detailEdit.style.display='none';
+    notesText.style.display='block';  notesEdit.style.display='none';
+    editBtn.textContent='Edit'; saveBtn.style.display='none';
+    deleteBtn.style.display='block';
+  } else {
+    // Enter edit mode
+    detailText.style.display='none'; detailEdit.style.display='block';
+    notesText.style.display='none';  notesEdit.style.display='block';
+    editBtn.textContent='Cancel'; saveBtn.style.display='inline-flex';
+    deleteBtn.style.display='none';
+  }
+}
+
+async function saveEdit(id){
+  const i = issues.find(x=>x.id===id);
+  if(!i) return;
+  const saveBtn = document.getElementById('view-save-btn');
+  saveBtn.textContent='Saving…'; saveBtn.disabled=true;
+  i.detail = document.getElementById('view-detail-edit').value;
+  i.notes  = document.getElementById('view-notes-edit').value;
+  try {
+    await apiPost({action:'update', ...i});
+    showToast('Changes saved ✓');
+    closeModal();
+    await loadIssues();
+  } catch(e){
+    showToast('Save failed: ' + e.message);
+    saveBtn.textContent='Save Changes'; saveBtn.disabled=false;
+  }
+}
+
+
 function closeIfBg(e){ if(e.target.id==='overlay') closeModal(); }
 
 function showPage(name, el){
