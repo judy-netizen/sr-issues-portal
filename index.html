@@ -472,11 +472,103 @@
   }
   .b-vip { background: rgba(247,148,29,0.15); color: #c96e00; border: 1px solid rgba(247,148,29,0.35); font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; vertical-align: middle; margin-left: 5px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* LOGIN SCREEN */
+  .login-screen {
+    position: fixed; inset: 0;
+    background: #1B3F7A;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+  .login-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    width: 400px;
+    max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo { text-align: center; margin-bottom: 28px; }
+  .login-logo-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: #F7941D; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; }
+  .login-logo-name { font-size: 22px; font-weight: 700; color: #1B3F7A; letter-spacing: -0.02em; margin-top: 4px; }
+  .login-logo-sub { font-size: 12px; color: #6b7fa3; margin-top: 6px; }
+  .login-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .login-group label { font-size: 11px; color: #F7941D; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .login-group select, .login-group input { width: 100%; padding: 10px 12px; border: 1.5px solid #1B3F7A; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #0d1e3d; background: #fff; outline: none; }
+  .login-group input[type=password] { letter-spacing: 0.2em; font-size: 18px; }
+  .login-group select:focus, .login-group input:focus { border-color: #F7941D; box-shadow: 0 0 0 3px rgba(247,148,29,0.15); }
+  .login-btn { width: 100%; padding: 12px; background: #F7941D; color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
+  .login-btn:hover { opacity: 0.88; }
+  .login-error { color: #c02a2a; font-size: 13px; text-align: center; margin-top: 12px; display: none; font-weight: 500; }
 </style>
 </head>
 <body>
 
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-tag">Sunrise</div>
+      <div class="login-logo-name">SR Issues Portal</div>
+      <div class="login-logo-sub">Please sign in to continue</div>
+    </div>
+    <div class="login-group">
+      <label>Your Name</label>
+      <select id="login-name">
+        <option value="">— Select your name —</option>
+        <optgroup label="Project Managers">
+          <option>Allaiza Velasquez</option>
+          <option>Genneva Arguelles</option>
+          <option>Francheska Alvarez</option>
+          <option>Angelica Capili</option>
+          <option>May Contestable</option>
+          <option>Mary Ann Sante</option>
+        </optgroup>
+        <optgroup label="Regular Team">
+          <option>Abdulhalim Dayoub</option>
+          <option>Adam Kheder</option>
+          <option>Alaa Mahdi</option>
+          <option>Ashraf Dardar</option>
+          <option>Habib Maktabi</option>
+          <option>Hadi Haj Abdullah</option>
+          <option>Kai Nori</option>
+          <option>Khaled Zarzour</option>
+          <option>Luay Daboul</option>
+          <option>Marina Morcos</option>
+          <option>Mo Jaliawala</option>
+          <option>Mutawakel Nofal</option>
+          <option>Rami Alkhawandi</option>
+          <option>Romel George</option>
+          <option>Sam Aktham</option>
+          <option>Sami Alkabbani</option>
+          <option>Zack</option>
+        </optgroup>
+        <optgroup label="VIP Team">
+          <option>Ahmed Alsayyad</option>
+          <option>Mo Alkubaisi</option>
+          <option>Marwan Smadi</option>
+          <option>Marwan Noweder</option>
+          <option>Ben Qahwaji</option>
+          <option>Abdal Barakat</option>
+          <option>Ahmad Shaban</option>
+          <option>Deanna Hernandez</option>
+          <option>Hina Inayat</option>
+          <option>Matthew Romano</option>
+          <option>MOw Salah</option>
+          <option>Muhanad Alkubaishi</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="login-group">
+      <label>PIN</label>
+      <input type="password" id="login-pin" placeholder="Enter your 4-digit PIN" maxlength="4" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error">Incorrect name or PIN. Please try again.</div>
+  </div>
+</div>
+
 <div class="layout">
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -643,6 +735,70 @@
 <script>
 const SCRIPT_URL = 'https://script.google.com/a/macros/sunrisesolar-il.com/s/AKfycbzyeIRhFMwo6DyMtif5MdB6HZlKqwHBIOcRyI1kG36JH8kTHwG0VOA3NiGUL78FoRvMQw/exec';
 
+/* ── PIN credentials ── */
+const CREDENTIALS = {
+  'Allaiza Velasquez':  {pin:'2824',role:'pm'},
+  'Genneva Arguelles':  {pin:'1409',role:'pm'},
+  'Francheska Alvarez': {pin:'5506',role:'pm'},
+  'Angelica Capili':    {pin:'5012',role:'pm'},
+  'May Contestable':    {pin:'4657',role:'pm'},
+  'Mary Ann Sante':     {pin:'3286',role:'pm'},
+  'Abdulhalim Dayoub':  {pin:'2679',role:'sr'},
+  'Adam Kheder':        {pin:'9935',role:'sr'},
+  'Alaa Mahdi':         {pin:'2424',role:'sr'},
+  'Ashraf Dardar':      {pin:'7912',role:'sr'},
+  'Habib Maktabi':      {pin:'1520',role:'sr'},
+  'Hadi Haj Abdullah':  {pin:'1488',role:'sr'},
+  'Kai Nori':           {pin:'2535',role:'sr'},
+  'Khaled Zarzour':     {pin:'4582',role:'sr'},
+  'Luay Daboul':        {pin:'4811',role:'sr'},
+  'Marina Morcos':      {pin:'9279',role:'sr'},
+  'Mo Jaliawala':       {pin:'1434',role:'sr'},
+  'Mutawakel Nofal':    {pin:'4257',role:'sr'},
+  'Rami Alkhawandi':    {pin:'9928',role:'sr'},
+  'Romel George':       {pin:'7873',role:'sr'},
+  'Sam Aktham':         {pin:'4611',role:'sr'},
+  'Sami Alkabbani':     {pin:'8359',role:'sr'},
+  'Zack':               {pin:'5557',role:'sr'},
+  'Ahmed Alsayyad':     {pin:'1106',role:'sr'},
+  'Mo Alkubaisi':       {pin:'3615',role:'sr'},
+  'Marwan Smadi':       {pin:'7924',role:'sr'},
+  'Marwan Noweder':     {pin:'6574',role:'sr'},
+  'Ben Qahwaji':        {pin:'5552',role:'sr'},
+  'Abdal Barakat':      {pin:'3547',role:'sr'},
+  'Ahmad Shaban':       {pin:'4527',role:'sr'},
+  'Deanna Hernandez':   {pin:'6514',role:'sr'},
+  'Hina Inayat':        {pin:'2674',role:'sr'},
+  'Matthew Romano':     {pin:'2519',role:'sr'},
+  'MOw Salah':          {pin:'7224',role:'sr'},
+  'Muhanad Alkubaishi': {pin:'2584',role:'sr'},
+};
+
+let currentUser = null;
+
+function doLogin(){
+  const name = document.getElementById('login-name').value;
+  const pin  = document.getElementById('login-pin').value.trim();
+  const err  = document.getElementById('login-error');
+  if(!name){ err.textContent='Please select your name.'; err.style.display='block'; return; }
+  if(!pin){  err.textContent='Please enter your PIN.';   err.style.display='block'; return; }
+  const cred = CREDENTIALS[name];
+  if(!cred || cred.pin !== pin){
+    err.textContent='Incorrect PIN. Please try again.';
+    err.style.display='block';
+    document.getElementById('login-pin').value='';
+    return;
+  }
+  currentUser = { name, role: cred.role };
+  document.getElementById('login-screen').style.display='none';
+  document.querySelector('.sidebar-footer').innerHTML = `Logged in as <span>${name}</span>`;
+  if(currentUser.role === 'sr'){
+    document.querySelector('.btn-add').style.display='none';
+    document.querySelector('.topbar-left p').textContent = 'Showing issues assigned to you';
+  }
+  loadIssues();
+}
+
 const PMs = ['Allaiza Velasquez','Genneva Arguelles','Francheska Alvarez','Angelica Capili','May Contestable','Mary Ann Sante'];
 const CATS = ['HO Confirmation','Documentation','Design Change','Project Delay','Utility Bill'];
 const STATUSES = ['Open','In Progress','Escalated','Resolved'];
@@ -735,6 +891,8 @@ function render(){
   const org=document.getElementById('fOrg').value;
   const sr=document.getElementById('fSR').value;
   let list=issues.filter(i=>{
+    // SR role: only show their own issues
+    if(currentUser && currentUser.role==='sr' && i.sr!==currentUser.name) return false;
     if(activeTab==='open'&&i.status!=='Open') return false;
     if(activeTab==='in-progress'&&i.status!=='In Progress') return false;
     if(activeTab==='escalated'&&i.status!=='Escalated') return false;
@@ -945,7 +1103,7 @@ function showToast(msg){
   setTimeout(()=>t.style.display='none',3000);
 }
 
-loadIssues();
+// Portal initializes after login via doLogin()
 </script>
 
 </body>
