@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SR Issues Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f5f9;
+    --surface: #ffffff;
+    --surface2: #f8f9fc;
+    --surface3: #eef1f7;
+    --border: rgba(27,63,122,0.12);
+    --border2: rgba(27,63,122,0.25);
+    --text: #0d1e3d;
+    --text2: #2a3f6b;
+    --text3: #6b7fa3;
+    --accent: #F7941D;
+    --accent-dim: rgba(247,148,29,0.13);
+    --red: #c02a2a;
+    --red-dim: rgba(192,42,42,0.10);
+    --amber: #a06200;
+    --amber-dim: rgba(160,98,0,0.10);
+    --green: #1e7a44;
+    --green-dim: rgba(30,122,68,0.10);
+    --purple: #1B3F7A;
+    --purple-dim: rgba(27,63,122,0.10);
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* SIDEBAR */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 220px;
+    background: #1B3F7A;
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+  .logo-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #F7941D;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .logo-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-section-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
+  .nav-item.active { background: #F7941D; color: #ffffff; font-weight: 600; }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.75; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+  .sidebar-footer span { color: #ffffff; font-weight: 600; }
+
+  /* MAIN */
+  .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+  .topbar {
+    padding: 20px 32px;
+    border-bottom: 3px solid #F7941D;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .topbar-left h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: #0d1e3d; font-weight: 600; }
+  .topbar-left p { font-size: 12px; color: #6b7fa3; margin-top: 1px; }
+  .btn-add {
+    background: #F7941D;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 9px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  /* CONTENT */
+  .content { padding: 28px 32px; }
+
+  /* METRICS */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    transition: border-color 0.15s;
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .metric-label {
+    font-size: 11px;
+    color: #1B3F7A;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .metric-val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+  .metric-val.c-text { color: #0d1e3d; font-weight: 600; }
+  .metric-val.c-amber { color: #a06200; }
+  .metric-val.c-red { color: #c02a2a; }
+  .metric-val.c-green { color: #1e7a44; }
+  .metric-val.c-accent { color: #F7941D; }
+  .metric-sub { font-size: 11px; color: #6b7fa3; margin-top: 4px; }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 300px; }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+  }
+  input, select, textarea {
+    background: #ffffff;
+    border: 1.5px solid #1B3F7A;
+    border-radius: var(--radius);
+    color: #0d1e3d;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #F7941D; box-shadow: 0 0 0 3px rgba(247,148,29,0.15); }
+  select { cursor: pointer; appearance: none; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  textarea { resize: vertical; min-height: 80px; }
+  input::placeholder { color: var(--text3); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+  .tab-btn {
+    padding: 6px 16px;
+    border-radius: 7px;
+    border: none;
+    background: none;
+    color: #2a3f6b;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .tab-btn:hover { color: #0d1e3d; background: #eef1f7; }
+  .tab-btn.active { background: #1B3F7A; color: #ffffff; font-weight: 600; }
+  .tab-count {
+    background: #dde5f5;
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: #1B3F7A;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+  }
+  .tab-btn.active .tab-count { background: rgba(255,255,255,0.25); color: #ffffff; }
+
+  /* TABLE */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1B3F7A;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #eef1f7;
+    border-bottom: 2px solid #c8d4e8;
+  }
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid #e4eaf5;
+    color: #0d1e3d;
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background 0.1s; cursor: pointer; }
+  tbody tr:hover td { background: var(--surface2); }
+  .col-id { width: 52px; }
+  .col-date { width: 60px; }
+  .col-sr { width: 185px; }
+  .col-pm { width: 180px; }
+  .col-customer { width: 150px; }
+  .col-cat { width: 110px; }
+  .col-issue { }
+  .col-pri { width: 90px; }
+  .col-status { width: 110px; }
+  .col-act { width: 70px; text-align: right; }
+  .cell-mono { font-family: 'DM Mono', monospace; font-size: 12px; color: #6b7fa3; }
+  .cell-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 100%; }
+  .cell-muted { color: #111111; font-size: 13px; font-weight: 500; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+  .b-high { background: #fde8e8; color: #9b1c1c; } .b-high::before { background: #c02a2a; }
+  .b-medium { background: #fef3dc; color: #7a4800; } .b-medium::before { background: #a06200; }
+  .b-low { background: #dcf5e8; color: #145730; } .b-low::before { background: #1e7a44; }
+  .b-open { background: #deeafa; color: #0f3270; } .b-open::before { background: #1B3F7A; }
+  .b-inprog { background: #fef3dc; color: #7a4800; } .b-inprog::before { background: #a06200; }
+  .b-escalated { background: #fde8e8; color: #9b1c1c; } .b-escalated::before { background: #c02a2a; }
+  .b-resolved { background: #dcf5e8; color: #145730; } .b-resolved::before { background: #1e7a44; }
+  .btn-view {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 12px;
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-view:hover { border-color: var(--border2); color: var(--text); }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state p { margin-top: 8px; font-size: 13px; }
+
+  /* MODAL */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #ffffff;
+    border: 2px solid #F7941D;
+    border-radius: var(--radius-lg);
+    width: 560px;
+    max-width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: slideUp 0.2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 2px solid #F7941D;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff8f0;
+  }
+  .modal-header h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; color: #1B3F7A; }
+  .modal-close {
+    background: #fff0e0;
+    border: 1px solid #F7941D;
+    border-radius: 7px;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #F7941D;
+    font-size: 18px;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: #F7941D; color: #ffffff; }
+  .modal-body { padding: 20px 24px; background: #ffffff; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-full { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 11px; color: #F7941D; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e8eef8;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8f9fc;
+  }
+  .btn-ghost {
+    background: none;
+    border: 1.5px solid #1B3F7A;
+    border-radius: var(--radius);
+    padding: 9px 18px;
+    color: #1B3F7A;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: #1B3F7A; color: #ffffff; }
+  .btn-danger {
+    background: var(--red-dim);
+    border: 1px solid rgba(224,82,82,0.25);
+    border-radius: var(--radius);
+    padding: 9px 18px;
+    color: var(--red);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-danger:hover { opacity: 0.8; }
+
+  /* VIEW DETAIL */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .detail-field { background: #eef1f7; border-radius: var(--radius); padding: 12px 14px; border: 1px solid #c8d4e8; }
+  .detail-field-label { font-size: 10px; color: #1B3F7A; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; font-weight: 700; }
+  .detail-field-val { font-size: 13px; color: #0d1e3d; font-weight: 600; }
+  .detail-full { grid-column: 1/-1; }
+  .detail-desc {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 14px;
+    color: var(--text2);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .detail-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.02em; }
+  .status-select-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .status-select-wrap label { font-size: 12px; color: var(--text3); }
+  .status-select-wrap select { width: auto; }
+
+  /* REPORT PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+  .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .report-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .report-card h3 { font-size: 11px; font-weight: 700; color: #1B3F7A; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; color: #7a3800; min-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .bar-track { flex: 1; background: #dde5f5; border-radius: 4px; height: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-count { font-size: 12px; color: #1B3F7A; min-width: 20px; text-align: right; font-family: 'DM Mono', monospace; font-weight: 600; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 999;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .b-vip { background: rgba(247,148,29,0.15); color: #c96e00; border: 1px solid rgba(247,148,29,0.35); font-size: 10px; padding: 1px 6px; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; vertical-align: middle; margin-left: 5px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-tag">Sunrise</div>
+      <div class="logo-name">SR Issues Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu</div>
+      <button class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('report', this)">
+        <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Reports
+      </button>
+      <div class="nav-section-label" style="margin-top:20px">Quick filter</div>
+      <button class="nav-item" onclick="quickFilter('High')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        High priority
+      </button>
+      <button class="nav-item" onclick="quickFilter('escalated')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Escalated
+      </button>
+      <button class="nav-item" onclick="quickFilter('open')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        Open issues
+      </button>
+      <button class="nav-item" onclick="quickFilter('vip')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        VIP team
+      </button>
+    </nav>
+    <div class="sidebar-footer">Logged in as <span>Admin</span></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Issue Tracker</h1>
+          <p>Concerns raised by Project Managers on Sales Representatives</p>
+        </div>
+        <button class="btn-add" onclick="openAdd()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Log Issue
+        </button>
+      </div>
+
+      <div class="content">
+        <div class="metrics" id="metrics"></div>
+
+        <div class="tabs" id="tabs">
+          <button class="tab-btn active" onclick="setTab('all',this)">All <span class="tab-count" id="tc-all">0</span></button>
+          <button class="tab-btn" onclick="setTab('open',this)">Open <span class="tab-count" id="tc-open">0</span></button>
+          <button class="tab-btn" onclick="setTab('in-progress',this)">In Progress <span class="tab-count" id="tc-inprog">0</span></button>
+          <button class="tab-btn" onclick="setTab('escalated',this)">Escalated <span class="tab-count" id="tc-esc">0</span></button>
+          <button class="tab-btn" onclick="setTab('resolved',this)">Resolved <span class="tab-count" id="tc-res">0</span></button>
+        </div>
+
+        <div class="filters">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="search" placeholder="Search rep, issue..." oninput="render()">
+          </div>
+          <select id="fPM" onchange="render()">
+            <option value="">All PMs</option>
+            <option>Allaiza Velasquez</option>
+            <option>Genneva Arguelles</option>
+            <option>Francheska Alvarez</option>
+            <option>Angelica Capili</option>
+            <option>May Contestable</option>
+          </select>
+          <select id="fOrg" onchange="render()">
+            <option value="">All teams</option>
+            <option value="regular">Regular team</option>
+            <option value="vip">VIP team</option>
+          </select>
+          <select id="fSR" onchange="render()">
+            <option value="">All reps</option>
+            <optgroup label="Regular Team">
+              <option>Abdulhalim Dayoub</option><option>Adam Kheder</option><option>Alaa Mahdi</option><option>Ashraf Dardar</option><option>Habib Maktabi</option><option>Hadi Haj Abdullah</option><option>Kai Nori</option><option>Khaled Zarzour</option><option>Luay Daboul</option><option>Marina Morcos</option><option>Mo Jaliawala</option><option>Mutawakel Nofal</option><option>Rami Alkhawandi</option><option>Romel George</option><option>Sam Aktham</option><option>Sami Alkabbani</option><option>Zack</option>
+            </optgroup>
+            <optgroup label="VIP Team">
+              <option>Ahmed Alsayyad</option>
+              <option>Mo Alkubaisi</option>
+              <option>Marwan Smadi</option>
+              <option>Marwan Noweder</option>
+              <option>Ben Qahwaji</option>
+              <option>Abdal Barakat</option>
+              <option>Ahmad Shaban</option>
+              <option>Deanna Hernandez</option>
+              <option>Hina Inayat</option>
+              <option>Matthew Romano</option>
+              <option>MOw Salah</option>
+              <option>Muhanad Alkubaishi</option>
+            </optgroup>
+          </select>
+          <select id="fPri" onchange="render()">
+            <option value="">All priorities</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <select id="fCat" onchange="render()">
+            <option value="">All categories</option>
+            <option>HO Confirmation</option>
+            <option>Documentation</option>
+            <option>Design Change</option>
+            <option>Project Delay</option>
+            <option>Utility Bill</option>
+          </select>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-id">#</th>
+                <th class="col-date">Date</th>
+                <th class="col-customer">Customer</th>
+                <th class="col-sr">Sales Rep</th>
+                <th class="col-pm">Project Manager</th>
+                <th class="col-cat">Category</th>
+                <th class="col-issue">Issue summary</th>
+                <th class="col-pri">Priority</th>
+                <th class="col-status">Status</th>
+                <th class="col-act">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS PAGE -->
+    <div id="page-report" class="page">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>Reports</h1>
+          <p>Summary breakdown of all logged issues</p>
+        </div>
+      </div>
+      <div class="content">
+        <div class="report-grid" id="report-content"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeIfBg(event)">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/a/macros/sunrisesolar-il.com/s/AKfycbzyeIRhFMwo6DyMtif5MdB6HZlKqwHBIOcRyI1kG36JH8kTHwG0VOA3NiGUL78FoRvMQw/exec';
+
+const PMs = ['Allaiza Velasquez','Genneva Arguelles','Francheska Alvarez','Angelica Capili','May Contestable'];
+const CATS = ['HO Confirmation','Documentation','Design Change','Project Delay','Utility Bill'];
+const STATUSES = ['Open','In Progress','Escalated','Resolved'];
+const PRIS = ['High','Medium','Low'];
+const SR_REGULAR = ['Abdulhalim Dayoub','Adam Kheder','Alaa Mahdi','Ashraf Dardar','Habib Maktabi','Hadi Haj Abdullah','Kai Nori','Khaled Zarzour','Luay Daboul','Marina Morcos','Mo Jaliawala','Mutawakel Nofal','Rami Alkhawandi','Romel George','Sam Aktham','Sami Alkabbani','Zack'];
+const SR_VIP = ['Ahmed Alsayyad','Mo Alkubaisi','Marwan Smadi','Marwan Noweder','Ben Qahwaji','Abdal Barakat','Ahmad Shaban','Deanna Hernandez','Hina Inayat','Matthew Romano','MOw Salah','Muhanad Alkubaishi'];
+function isVIP(name){ return SR_VIP.includes(name); }
+
+let issues = [];
+let activeTab = 'all';
+let isLoading = false;
+
+/* ── API helpers ── */
+async function apiCall(params){
+  const qs = Object.entries(params)
+    .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v || ''))
+    .join('&');
+  const res = await fetch(SCRIPT_URL + '?' + qs, {redirect: 'follow'});
+  return await res.json();
+}
+
+async function apiGet(){
+  const data = await apiCall({action: 'getAll'});
+  return data.issues || [];
+}
+
+async function apiPost(body){
+  return await apiCall(body);
+}
+
+function setLoading(on){
+  isLoading = on;
+  const btn = document.querySelector('.btn-add');
+  if(btn) btn.disabled = on;
+  if(on){
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="10"><div class="empty-state"><div style="font-size:22px;color:var(--text3)">⟳</div><p style="color:var(--text3)">Loading issues…</p></div></td></tr>`;
+  }
+}
+
+async function loadIssues(){
+  setLoading(true);
+  try {
+    const rows = await apiGet();
+    issues = rows.map(r => ({
+      id: Number(r.ID),
+      date: r.Date,
+      customer: r.Customer,
+      sr: r.SalesRep,
+      pm: r.ProjectManager,
+      category: r.Category,
+      priority: r.Priority,
+      status: r.Status,
+      summary: r.Summary,
+      detail: r.Detail
+    })).sort((a,b) => b.id - a.id);
+  } catch(e){
+    showToast('Failed to load data. Check your connection.');
+  }
+  setLoading(false);
+  render();
+}
+
+/* ── Rendering ── */
+function priClass(p){ return p==='High'?'b-high':p==='Medium'?'b-medium':'b-low'; }
+function statusClass(s){ if(s==='Open') return 'b-open'; if(s==='In Progress') return 'b-inprog'; if(s==='Escalated') return 'b-escalated'; return 'b-resolved'; }
+
+function renderMetrics(){
+  const t=issues.length, op=issues.filter(i=>i.status==='Open').length, esc=issues.filter(i=>i.status==='Escalated').length, hi=issues.filter(i=>i.priority==='High').length, res=issues.filter(i=>i.status==='Resolved').length;
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric-card"><div class="metric-label">Total issues</div><div class="metric-val c-text">${t}</div><div class="metric-sub">All time</div></div>
+    <div class="metric-card"><div class="metric-label">Open</div><div class="metric-val c-amber">${op}</div><div class="metric-sub">Needs attention</div></div>
+    <div class="metric-card"><div class="metric-label">Escalated</div><div class="metric-val c-red">${esc}</div><div class="metric-sub">Urgent</div></div>
+    <div class="metric-card"><div class="metric-label">High priority</div><div class="metric-val c-red">${hi}</div><div class="metric-sub">Critical items</div></div>
+    <div class="metric-card"><div class="metric-label">Resolved</div><div class="metric-val c-green">${res}</div><div class="metric-sub">Closed</div></div>
+  `;
+  document.getElementById('tc-all').textContent=issues.length;
+  document.getElementById('tc-open').textContent=op;
+  document.getElementById('tc-inprog').textContent=issues.filter(i=>i.status==='In Progress').length;
+  document.getElementById('tc-esc').textContent=esc;
+  document.getElementById('tc-res').textContent=res;
+}
+
+function render(){
+  if(isLoading) return;
+  renderMetrics();
+  const q=document.getElementById('search').value.toLowerCase();
+  const pm=document.getElementById('fPM').value;
+  const pri=document.getElementById('fPri').value;
+  const cat=document.getElementById('fCat').value;
+  const org=document.getElementById('fOrg').value;
+  const sr=document.getElementById('fSR').value;
+  let list=issues.filter(i=>{
+    if(activeTab==='open'&&i.status!=='Open') return false;
+    if(activeTab==='in-progress'&&i.status!=='In Progress') return false;
+    if(activeTab==='escalated'&&i.status!=='Escalated') return false;
+    if(activeTab==='resolved'&&i.status!=='Resolved') return false;
+    if(q&&!i.sr.toLowerCase().includes(q)&&!i.summary.toLowerCase().includes(q)&&!i.category.toLowerCase().includes(q)&&!(i.customer||'').toLowerCase().includes(q)) return false;
+    if(pm&&i.pm!==pm) return false;
+    if(pri&&i.priority!==pri) return false;
+    if(cat&&i.category!==cat) return false;
+    if(org==='vip'&&!isVIP(i.sr)) return false;
+    if(org==='regular'&&isVIP(i.sr)) return false;
+    if(sr&&i.sr!==sr) return false;
+    return true;
+  });
+  const tbody=document.getElementById('tbody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div style="font-size:32px;color:var(--text3)">◎</div><p>No issues found</p></div></td></tr>`;return;}
+  tbody.innerHTML=list.map(i=>`
+    <tr onclick="openView(${i.id})">
+      <td class="col-id cell-mono">#${String(i.id).padStart(3,'0')}</td>
+      <td class="col-date cell-mono">${(i.date||'').slice(0,10).slice(5).replace('-','/')}</td>
+      <td class="col-customer"><span class="cell-truncate" title="${i.customer||''}">${i.customer||'—'}</span></td>
+      <td class="col-sr"><span title="${i.sr}">${i.sr}${isVIP(i.sr)?'<span class="b-vip">VIP</span>':''}</span></td>
+      <td class="col-pm"><span style="color:#2a3f6b;font-weight:500" title="${i.pm}">${i.pm}</span></td>
+      <td class="col-cat"><span style="font-size:12px;color:#555">${i.category}</span></td>
+      <td class="col-issue"><span class="cell-truncate" title="${i.summary}">${i.summary}</span></td>
+      <td class="col-pri"><span class="badge ${priClass(i.priority)}">${i.priority}</span></td>
+      <td class="col-status"><span class="badge ${statusClass(i.status)}">${i.status}</span></td>
+      <td class="col-act" onclick="event.stopPropagation()"><button class="btn-view" onclick="openView(${i.id})">View</button></td>
+    </tr>
+  `).join('');
+}
+
+function setTab(t,el){
+  activeTab=t;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function quickFilter(type){
+  showPage('dashboard', document.querySelector('.nav-item'));
+  document.getElementById('fPri').value='';
+  document.getElementById('fOrg').value='';
+  document.getElementById('fSR').value='';
+  document.querySelectorAll('.tab-btn')[0].click();
+  if(type==='High'){document.getElementById('fPri').value='High';}
+  else if(type==='escalated'){document.querySelectorAll('.tab-btn')[3].click();}
+  else if(type==='open'){document.querySelectorAll('.tab-btn')[1].click();}
+  else if(type==='vip'){document.getElementById('fOrg').value='vip';}
+  render();
+}
+
+function srSelectHtml(selected=''){
+  const reg=SR_REGULAR.map(s=>`<option${s===selected?' selected':''}>${s}</option>`).join('');
+  const vip=SR_VIP.map(s=>`<option${s===selected?' selected':''}>${s}</option>`).join('');
+  return `<option value="">— Select Sales Rep —</option><optgroup label="Regular Team">${reg}</optgroup><optgroup label="VIP Team">${vip}</optgroup>`;
+}
+
+function openAdd(){
+  document.getElementById('modal').innerHTML=`
+    <div class="modal-header"><h2>Log New Issue</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-group"><label>Priority</label><select id="f-pri">${PRIS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Sales Representative</label><select id="f-sr">${srSelectHtml()}</select></div>
+        <div class="form-group"><label>Project Manager</label><select id="f-pm"><option value="">— Select PM —</option>${PMs.map(p=>`<option>${p}</option>`).join('')}</select></div>
+        <div class="form-group form-full"><label>Customer Name</label><input type="text" id="f-customer" placeholder="Full name of the customer"></div>
+        <div class="form-group"><label>Category</label><select id="f-cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Status</label><select id="f-status">${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+        <div class="form-group form-full"><label>Issue Summary</label><input type="text" id="f-sum" placeholder="Brief title describing the concern"></div>
+        <div class="form-group form-full"><label>Full Details</label><textarea id="f-det" placeholder="Describe the issue — what happened, client impact, steps taken so far..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="saveIssue()">Save Issue</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('show');
+}
+
+async function saveIssue(){
+  const sr=document.getElementById('f-sr').value;
+  const pm=document.getElementById('f-pm').value;
+  const sum=document.getElementById('f-sum').value.trim();
+  if(!sr||!pm||!sum){showToast('Please fill in Sales Rep, PM, and Issue Summary.');return;}
+  const saveBtn = document.querySelector('#modal .btn-add');
+  saveBtn.textContent='Saving…'; saveBtn.disabled=true;
+  try {
+    const result = await apiPost({
+      action:'add',
+      date: document.getElementById('f-date').value,
+      sr, pm,
+      customer: document.getElementById('f-customer').value.trim(),
+      category: document.getElementById('f-cat').value,
+      priority: document.getElementById('f-pri').value,
+      status: document.getElementById('f-status').value,
+      summary: sum,
+      detail: document.getElementById('f-det').value
+    });
+    if(result.error) throw new Error(result.error);
+    closeModal();
+    showToast('Issue saved to Google Sheets ✓');
+    await loadIssues();
+  } catch(e){
+    showToast('Save failed: ' + e.message);
+    saveBtn.textContent='Save Issue'; saveBtn.disabled=false;
+  }
+}
+
+function openView(id){
+  const i=issues.find(x=>x.id===id);
+  if(!i) return;
+  document.getElementById('modal').innerHTML=`
+    <div class="modal-header">
+      <h2>Issue #${String(i.id).padStart(3,'0')}</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="status-select-wrap">
+        <label>Status:</label>
+        <select onchange="updateStatus(${i.id},this.value)">
+          ${STATUSES.map(s=>`<option${s===i.status?' selected':''}>${s}</option>`).join('')}
+        </select>
+        <span class="badge ${priClass(i.priority)}" style="margin-left:6px">${i.priority}</span>
+      </div>
+      <div class="detail-title">${i.summary}</div>
+      <div class="detail-grid">
+        <div class="detail-field"><div class="detail-field-label">Sales Rep</div><div class="detail-field-val">${i.sr}${isVIP(i.sr)?'<span class="b-vip">VIP</span>':''}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Project Manager</div><div class="detail-field-val">${i.pm}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Customer Name</div><div class="detail-field-val">${i.customer||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Date Logged</div><div class="detail-field-val">${i.date}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Category</div><div class="detail-field-val">${i.category}</div></div>
+        <div class="detail-field detail-full"><div class="detail-field-label">Details</div><div class="detail-desc">${i.detail||'No additional details provided.'}</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" onclick="deleteIssue(${i.id})">Delete</button>
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('show');
+}
+
+async function updateStatus(id,val){
+  showToast('Updating status…');
+  const i=issues.find(x=>x.id===id);
+  if(!i) return;
+  try {
+    await apiPost({action:'update', ...i, status:val});
+    showToast('Status updated to ' + val + ' ✓');
+    await loadIssues();
+    closeModal();
+  } catch(e){
+    showToast('Update failed.');
+  }
+}
+
+async function deleteIssue(id){
+  if(!confirm('Delete this issue? This cannot be undone.')) return;
+  try {
+    await apiPost({action:'delete', id});
+    closeModal();
+    showToast('Issue deleted ✓');
+    await loadIssues();
+  } catch(e){
+    showToast('Delete failed.');
+  }
+}
+
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+function closeIfBg(e){ if(e.target.id==='overlay') closeModal(); }
+
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='report') renderReport();
+}
+
+function renderReport(){
+  const srMap={}, pmMap={}, catMap={}, priMap={High:0,Medium:0,Low:0};
+  issues.forEach(i=>{
+    srMap[i.sr]=(srMap[i.sr]||0)+1;
+    pmMap[i.pm]=(pmMap[i.pm]||0)+1;
+    catMap[i.category]=(catMap[i.category]||0)+1;
+    priMap[i.priority]=(priMap[i.priority]||0)+1;
+  });
+  const max=(obj)=>Math.max(...Object.values(obj),1);
+  const bars=(obj,color)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${k}">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max(obj)*100)}%;background:${color}"></div></div>
+      <div class="bar-count">${v}</div>
+    </div>`).join('');
+  document.getElementById('report-content').innerHTML=`
+    <div class="report-card"><h3>Issues by Sales Rep</h3>${bars(srMap,'var(--accent)')}</div>
+    <div class="report-card"><h3>Issues by Project Manager</h3>${bars(pmMap,'var(--purple)')}</div>
+    <div class="report-card"><h3>Issues by Category</h3>${bars(catMap,'var(--amber)')}</div>
+    <div class="report-card"><h3>Issues by Priority</h3>${bars(priMap,'var(--red)')}</div>
+  `;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+loadIssues();
+</script>
+
+</body>
+</html>
