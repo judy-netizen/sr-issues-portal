@@ -1435,19 +1435,12 @@ function renderMessages(){
   }
 
   container.innerHTML = issuesWithComments.map(i => {
-    const entries = i.comments.split('||').filter(e=>e.trim());
-    const lastEntry = entries[entries.length-1];
-    const parts = lastEntry.trim().split(' | ');
-    const lastTs = parts[0]||'';
-    const lastWho = parts[1]||'';
-    const lastMsg = parts.slice(2).join(' | ')||'';
-    const isUnread = lastWho !== (currentUser?currentUser.name:'');
+    const parsed = parseComments(i.comments);
+    if(!parsed.length) return '';
+    const last = parsed[parsed.length-1];
+    const isUnread = last.who !== (currentUser?currentUser.name:'');
 
-    const thread = entries.slice(-3).map(entry => {
-      const p = entry.trim().split(' | ');
-      const ts  = p[0]||'';
-      const who = p[1]||'';
-      const msg = p.slice(2).join(' | ')||'';
+    const thread = parsed.slice(-3).map(({ts,who,msg})=>{
       const isMe = currentUser && who === currentUser.name;
       return `<div class="msg-entry ${isMe?'me':''}">
         <div class="msg-avatar">${getInitials(who)}</div>
@@ -1458,33 +1451,33 @@ function renderMessages(){
       </div>`;
     }).join('');
 
-    return `<div class="msg-card" onclick="openView(${i.id});showPage('dashboard',document.querySelector('.nav-item'))">
+    return `<div class="msg-card" onclick="openIssueFromMessages(${i.id})">
       <div class="msg-card-header">
         <div>
           <div class="msg-card-issue">#${String(i.id).padStart(3,'0')} · ${i.sr} → ${i.pm}${isUnread?'<span class="msg-unread-dot"></span>':''}</div>
           <div class="msg-card-summary">${i.summary}</div>
         </div>
-        <div class="msg-card-meta">${lastTs}</div>
+        <div class="msg-card-meta">${last.ts}</div>
       </div>
       <div class="msg-thread">${thread}</div>
     </div>`;
   }).join('');
 }
 
+function openIssueFromMessages(id){
+  showPage('dashboard', document.querySelector('.nav-item'));
+  openView(id);
+}
+
 function updateMsgBadge(){
   if(!currentUser) return;
   const count = issues.filter(i => {
     if(!i.comments) return false;
-    // Only count issues relevant to this user
     if(currentUser.role==='sr' && i.sr !== currentUser.name) return false;
     if(currentUser.role==='pm' && i.pm !== currentUser.name) return false;
-    const entries = i.comments.split('||').filter(e=>e.trim());
-    if(!entries.length) return false;
-    const lastEntry = entries[entries.length-1];
-    const parts = lastEntry.trim().split(' | ');
-    const lastWho = parts[1]||'';
-    // Unread = last comment NOT from me
-    return lastWho !== currentUser.name;
+    const parsed = parseComments(i.comments);
+    if(!parsed.length) return false;
+    return parsed[parsed.length-1].who !== currentUser.name;
   }).length;
   const badge = document.getElementById('msg-badge');
   if(badge){
@@ -1510,7 +1503,7 @@ function showPage(name, el){
   document.getElementById('page-'+name).classList.add('active');
   el.classList.add('active');
   if(name==='report') renderReport();
-  if(name==='messages') renderMessages();
+  if(name==='messages'){ loadIssues().then(()=>renderMessages()); }
 }
 
 function renderReport(){
@@ -1542,16 +1535,21 @@ function showToast(msg){
   setTimeout(()=>t.style.display='none',3000);
 }
 
+function parseComments(commentsStr){
+  if(!commentsStr || !commentsStr.trim()) return [];
+  // Support both new format (~~~SPLIT~~~) and old format ( || )
+  const separator = commentsStr.includes('~~~SPLIT~~~') ? '~~~SPLIT~~~' : ' || ';
+  const fieldSep  = commentsStr.includes('~~~SEP~~~')   ? '~~~SEP~~~'   : ' | ';
+  return commentsStr.split(separator).filter(e=>e.trim()).map(entry=>{
+    const parts = entry.trim().split(fieldSep);
+    return { ts: parts[0]||'', who: parts[1]||'', msg: parts.slice(2).join(fieldSep)||'' };
+  });
+}
+
 function renderComments(commentsStr, id){
   if(!commentsStr || !commentsStr.trim()) return `<div class="no-comments">No messages yet. Start the conversation!</div>`;
-  const entries = commentsStr.split('||').filter(e=>e.trim());
-  return entries.map(entry=>{
-    // Format: "2026-05-12 10:30 | Allaiza Velasquez | message text"
-    const parts = entry.trim().split(' | ');
-    if(parts.length < 3) return '';
-    const ts   = parts[0];
-    const who  = parts[1];
-    const msg  = parts.slice(2).join(' | ');
+  const parsed = parseComments(commentsStr);
+  return parsed.map(({ts, who, msg})=>{
     const isMe = currentUser && who === currentUser.name;
     return `<div class="comment-bubble ${isMe?'me':'other'}">
       <div class="comment-meta">${who} · ${ts}</div>
@@ -1568,8 +1566,8 @@ async function sendComment(id){
   if(!i) return;
   const now = new Date();
   const ts = now.toISOString().slice(0,10) + ' ' + now.toTimeString().slice(0,5);
-  const entry = `${ts} | ${currentUser.name} | ${msg}`;
-  const newComments = i.comments ? i.comments + ' || ' + entry : entry;
+  const entry = ts + '~~~SEP~~~' + currentUser.name + '~~~SEP~~~' + msg;
+  const newComments = i.comments ? i.comments + '~~~SPLIT~~~' + entry : entry;
   input.value='';
   input.disabled=true;
   try {
