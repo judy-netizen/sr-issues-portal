@@ -877,7 +877,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwzPqOueiuyIpT8RE5tsQyLnLgzlJs3bsIGABmXZoxGX2uSUNxg9oLoIcdyi-BxoLf6w/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXwjee7AYxQr8GMlztN7tedUuLvzaAkAdIyshodW5lAvpW83eLkwbsRXfpvi7IJo0p5A/exec';
 
 /* ── PIN credentials ── */
 const CREDENTIALS = {
@@ -996,20 +996,31 @@ async function apiGet(){
 }
 
 async function apiPost(body){
-  // Use POST with JSON body for write operations to avoid URL length limits
+  // First try POST with JSON
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(body),
       redirect: 'follow'
     });
     const text = await res.text();
-    try { return JSON.parse(text); } catch(e){ return { success: true }; }
-  } catch(e){
-    // Fallback to GET if POST fails
-    return await apiCall(body);
+    try {
+      const json = JSON.parse(text);
+      if(json.error) throw new Error(json.error);
+      return json;
+    } catch(parseErr){
+      // If POST response can't be parsed, fall through to GET
+    }
+  } catch(postErr){
+    console.warn('POST failed, trying GET fallback:', postErr);
   }
+  // GET fallback — truncate long fields to stay under URL limit
+  const safe = {...body};
+  if(safe.detail   && safe.detail.length   > 300) safe.detail   = safe.detail.slice(0,300);
+  if(safe.notes    && safe.notes.length    > 200) safe.notes    = safe.notes.slice(0,200);
+  if(safe.comments && safe.comments.length > 500) safe.comments = safe.comments.slice(0,500);
+  return await apiCall(safe);
 }
 
 function setLoading(on){
