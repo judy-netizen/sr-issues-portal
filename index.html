@@ -877,7 +877,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEcmsAkaqpFHpYJo4ekddskRQg5xAoz2C5rT5hxmVjUc5IQeGX2_fDX7y09BevDSooOQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwzPqOueiuyIpT8RE5tsQyLnLgzlJs3bsIGABmXZoxGX2uSUNxg9oLoIcdyi-BxoLf6w/exec';
 
 /* ── PIN credentials ── */
 const CREDENTIALS = {
@@ -996,7 +996,20 @@ async function apiGet(){
 }
 
 async function apiPost(body){
-  return await apiCall(body);
+  // Use POST with JSON body for write operations to avoid URL length limits
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body),
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    try { return JSON.parse(text); } catch(e){ return { success: true }; }
+  } catch(e){
+    // Fallback to GET if POST fails
+    return await apiCall(body);
+  }
 }
 
 function setLoading(on){
