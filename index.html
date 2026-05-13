@@ -1408,12 +1408,24 @@ async function saveEdit(id){
   i.notes    = document.getElementById('e-notes').value;
   i.statusLog   = newLog;
   i.resolvedDate = resolvedDate;
+  
+  const payload = {action:'update', ...i};
+  console.log('Sending payload:', JSON.stringify(payload));
+  
   try {
-    await apiPost({action:'update', ...i});
+    const result = await apiPost(payload);
+    console.log('Response:', JSON.stringify(result));
+    if(result && result.error){
+      showToast('❌ Server error: ' + result.error);
+      alert('Save error from server:\n' + JSON.stringify(result, null, 2));
+      saveBtn.textContent='Save Changes'; saveBtn.disabled=false;
+      return;
+    }
     showToast('Issue updated successfully ✓');
     closeModal();
     await loadIssues();
   } catch(e){
+    console.error('Save error:', e);
     showToast('Save failed: ' + e.message);
     saveBtn.textContent='Save Changes'; saveBtn.disabled=false;
   }
