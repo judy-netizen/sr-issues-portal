@@ -663,6 +663,7 @@
           <option>Rene Orozco - Fleet</option>
           <option>Rene Rodriguez - Fleet</option>
           <option>Rodolfo - Fleet</option>
+          <option>Raul Munoz - Fleet</option>
         </optgroup>
       </select>
     </div>
@@ -790,7 +791,7 @@
               <option>Ahmed Alsayyad</option><option>Mo Alkubaisi</option><option>Marwan Smadi</option><option>Marwan Noweder</option><option>Ben Qahwaji</option><option>Abdal Barakat</option><option>Ahmad Shaban</option><option>Deanna Hernandez</option><option>Hina Inayat</option><option>Matthew Romano</option><option>MOw Salah</option><option>Muhanad Alkubaishi</option>
             </optgroup>
             <optgroup label="Fleet Team">
-              <option>Daniel Murillo - Fleet</option><option>Daniel Ortiz - Fleet</option><option>Diego Garza - Fleet</option><option>Miguel Delgado - Fleet</option><option>Rene Orozco - Fleet</option><option>Rene Rodriguez - Fleet</option><option>Rodolfo - Fleet</option>
+              <option>Daniel Murillo - Fleet</option><option>Daniel Ortiz - Fleet</option><option>Diego Garza - Fleet</option><option>Miguel Delgado - Fleet</option><option>Rene Orozco - Fleet</option><option>Rene Rodriguez - Fleet</option><option>Rodolfo - Fleet</option><option>Raul Munoz - Fleet</option>
             </optgroup>
           </select>
           <select id="fPri" onchange="render()">
@@ -927,6 +928,7 @@ const CREDENTIALS = {
   'Rene Orozco - Fleet':    {pin:'2917',role:'sr'},
   'Rene Rodriguez - Fleet': {pin:'7345',role:'sr'},
   'Rodolfo - Fleet':        {pin:'5638',role:'sr'},
+  'Raul Munoz - Fleet':     {pin:'4829',role:'sr'},
 };
 
 let currentUser = null;
@@ -968,7 +970,7 @@ const STATUSES = ['Open','In Progress','Escalated','Resolved'];
 const PRIS = ['High','Medium','Low'];
 const SR_REGULAR = ['Abdulhalim Dayoub','Adam Kheder','Alaa Mahdi','Ashraf Dardar','Habib Maktabi','Hadi Haj Abdullah','Kai Nori','Karim Almasri','Khaled Zarzour','Luay Daboul','Marina Morcos','Mo Jaliawala','Mutawakel Nofal','Rami Alkhawandi','Romel George','Sam Aktham','Sami Alkabbani','Zack'];
 const SR_VIP = ['Ahmed Alsayyad','Mo Alkubaisi','Marwan Smadi','Marwan Noweder','Ben Qahwaji','Abdal Barakat','Ahmad Shaban','Deanna Hernandez','Hina Inayat','Matthew Romano','MOw Salah','Muhanad Alkubaishi'];
-const SR_FLEET = ['Daniel Murillo - Fleet','Daniel Ortiz - Fleet','Diego Garza - Fleet','Miguel Delgado - Fleet','Rene Orozco - Fleet','Rene Rodriguez - Fleet','Rodolfo - Fleet'];
+const SR_FLEET = ['Daniel Murillo - Fleet','Daniel Ortiz - Fleet','Diego Garza - Fleet','Miguel Delgado - Fleet','Rene Orozco - Fleet','Rene Rodriguez - Fleet','Rodolfo - Fleet','Raul Munoz - Fleet'];
 function isVIP(name){ return SR_VIP.includes(name); }
 function isFleet(name){ return SR_FLEET.includes(name); }
 function getTeamBadge(name){
@@ -1372,6 +1374,8 @@ function toggleEdit(id){
       document.getElementById('e-summary').value    = i.summary || '';
       document.getElementById('e-detail').value     = i.detail  || '';
       document.getElementById('e-notes').value      = i.notes   || '';
+      // Debug: show what columns are mapped
+      console.log('Issue data:', JSON.stringify({id:i.id, detail:i.detail, notes:i.notes, summary:i.summary}));
     }
     viewMode.style.display='none'; editMode.style.display='block';
     editBtn.textContent='Cancel'; saveBtn.style.display='inline-flex';
